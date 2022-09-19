@@ -43,11 +43,18 @@ if not _GCE_METADATA_HOST:
     )
 _METADATA_ROOT = "http://{}/computeMetadata/v1/".format(_GCE_METADATA_HOST)
 
-# This is used to ping the metadata server, it avoids the cost of a DNS
-# lookup.
-_METADATA_IP_ROOT = "http://{}".format(
-    os.getenv(environment_vars.GCE_METADATA_IP, "169.254.169.254")
-)
+_METADATA_IP_ROOT = _GCE_METADATA_HOST
+if environment_vars.GCE_METADATA_IP in os.environ:
+    _METADATA_IP_ROOT = "http://{}".format(
+        os.getenv(environment_vars.GCE_METADATA_IP)
+    )
+elif _GCE_METADATA_HOST == "metdata.google.internal":
+    # This is used to ping the metadata server, it avoids the cost of a DNS
+    # lookup.
+    _METADATA_IP_ROOT = "http://{}".format(
+      os.getenv(environment_vars.GCE_METADATA_IP, "169.254.169.254")
+    )
+
 _METADATA_FLAVOR_HEADER = "metadata-flavor"
 _METADATA_FLAVOR_VALUE = "Google"
 _METADATA_HEADERS = {_METADATA_FLAVOR_HEADER: _METADATA_FLAVOR_VALUE}
